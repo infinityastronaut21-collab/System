@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSupabase } from './supabase';
 import { ensureProfile } from './ensureProfile';
 import { addDays, todayKey } from './dates';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   Activity,
   Completion,
@@ -100,7 +101,7 @@ export function useSystemData(): SystemData {
 
     // Temps réel : toute écriture (même depuis un autre onglet/appareil)
     // déclenche un rechargement automatique.
-    let channel: ReturnType<SupabaseClient['channel']> | null = null;
+    let channel: RealtimeChannel | null = null;
     try {
       channel = getSupabase()
         .channel('system-changes')
