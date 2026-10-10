@@ -155,3 +155,9 @@ export const IconLogout = (p: P) => (
     <path d="M5 12h11" />
   </svg>
 );
+
+export const IconMinus = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M5 12h14" />
+  </svg>
+);
