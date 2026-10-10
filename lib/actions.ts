@@ -114,3 +114,18 @@ export async function restoreSuperProject(id: string): Promise<void> {
     .eq('id', id);
   if (error) throw error;
 }
+
+/** Count : décrémente d'une unité (correction d'un clic en trop). */
+export async function decrementCount(
+  activity: Activity,
+  current: Completion | null
+): Promise<number> {
+  if (!current) return 0;
+  const next = Math.max(0, current.value - 1);
+  const { error } = await getSupabase()
+    .from('completions')
+    .update({ value: next, done: false })
+    .eq('id', current.id);
+  if (error) throw error;
+  return next;
+}

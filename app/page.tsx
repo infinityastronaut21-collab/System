@@ -139,6 +139,12 @@ export default function HomePage() {
           </section>
         )}
 
+        {data.error && !data.loading && (
+         <p className="rounded-lg border border-miss/30 bg-miss/5 px-3 py-2 text-xs text-miss">
+          Problème de synchronisation : {data.error}
+         </p>
+        )}
+        
         <InstallBanner />
       </main>
       <BottomNav />

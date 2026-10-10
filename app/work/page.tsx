@@ -384,16 +384,16 @@ function RowActions({ onEdit, onArchive }: { onEdit: () => void; onArchive: () =
   );
 }
 
-/** Feuille modale mobile-first (bottom sheet). */
+/** Feuille modale mobile-first (bottom sheet) — v2 : animations d'entrée. */
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal>
-      <div className="absolute inset-0 bg-ink/30" onClick={onClose} />
-      <div className="relative max-h-[88dvh] w-full max-w-app overflow-y-auto rounded-t-2xl border border-line bg-paper p-4 sm:rounded-2xl">
+      <div className="sheet-backdrop absolute inset-0 bg-ink/30" onClick={onClose} />
+      <div className="sheet-panel relative max-h-[88dvh] w-full max-w-app overflow-y-auto rounded-t-2xl border border-line bg-paper p-4 sm:rounded-2xl">
         <button
           onClick={onClose}
           aria-label="Fermer"
-          className="absolute right-2 top-2 flex min-h-[44px] min-w-[44px] items-center justify-center text-mist"
+          className="absolute right-2 top-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-mist transition-colors hover:bg-card"
         >
           <IconClose width={18} height={18} />
         </button>

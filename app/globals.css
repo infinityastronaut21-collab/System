@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SYSTEM — Design system « ink & paper » (Document 4) */
+/* SYSTEM — Design system « ink & paper » (Document 4) + animations UX v2 */
 
 :root {
   --ink: #141414;
@@ -15,96 +15,76 @@
   --miss: #c0392b;
 }
 
-html {
-  -webkit-tap-highlight-color: transparent;
-}
+html { -webkit-tap-highlight-color: transparent; }
 
 body {
   color: var(--ink);
   background: var(--paper);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto,
-    "Segoe UI", sans-serif;
-  /* Chiffres tabulaires pour chrono, compteurs et dates (Doc 4 §3) */
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, "Segoe UI", sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
-@layer components {
-  /* Carte : fond blanc, bordure 1 px #DDDDDD, rayon 10 px, padding 16 px */
-  .card {
-    @apply rounded-[10px] border border-line bg-paper p-4;
-  }
-
-  /* Bouton primaire : fond encre, texte blanc, rayon 8 px, pleine largeur mobile */
-  .btn-primary {
-    @apply w-full rounded-lg bg-ink px-4 py-3 text-sm font-semibold text-paper
-      transition-opacity duration-page hover:opacity-90 active:opacity-80
-      disabled:opacity-40 min-h-[44px];
-  }
-
-  .btn-ghost {
-    @apply rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium
-      text-ink transition-colors duration-page hover:bg-card min-h-[44px];
-  }
-
-  /* Champ de saisie : bordure 1 px, rayon 8 px, focus encre 1.5 px */
-  .field {
-    @apply w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm
-      text-ink placeholder:text-fog outline-none transition-shadow duration-page
-      focus:border-ink focus:shadow-[0_0_0_0.5px_#141414] min-h-[44px];
-  }
-
-  .label {
-    @apply mb-1.5 block text-xs font-medium text-mist;
-  }
-
-  /* Titre d'écran 20 px / 600 — titre de section 15 px / 600 */
-  .screen-title {
-    @apply text-xl font-semibold text-ink;
-  }
-  .section-title {
-    @apply text-[15px] font-semibold text-ink;
-  }
-  .meta {
-    @apply text-xs text-mist;
-  }
-
-  /* Chip (filtres, tags) */
-  .chip {
-    @apply inline-flex min-h-[32px] items-center rounded-full border border-line
-      bg-paper px-3 text-xs font-medium text-mist transition-colors duration-page;
-  }
-  .chip-active {
-    @apply border-ink bg-ink text-paper;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
+@layer components {
+  .card { @apply rounded-[10px] border border-line bg-paper p-4 transition-shadow duration-page hover:shadow-[0_1px_4px_rgba(0,0,0,0.06)]; }
+  .btn-primary { @apply w-full rounded-lg bg-ink px-4 py-3 text-sm font-semibold text-paper transition-all duration-page hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:opacity-40 min-h-[44px]; }
+  .btn-ghost { @apply rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors duration-page hover:bg-card active:scale-[0.98] min-h-[44px]; }
+  .field { @apply w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink placeholder:text-fog outline-none transition-shadow duration-page focus:border-ink focus:shadow-[0_0_0_0.5px_#141414] min-h-[44px]; }
+  .label { @apply mb-1.5 block text-xs font-medium text-mist; }
+  .screen-title { @apply text-xl font-semibold text-ink; }
+  .section-title { @apply text-[15px] font-semibold text-ink; }
+  .meta { @apply text-xs text-mist; }
+  .chip { @apply inline-flex min-h-[32px] items-center rounded-full border border-line bg-paper px-3 text-xs font-medium text-mist transition-all duration-page active:scale-95; }
+  .chip-active { @apply border-ink bg-ink text-paper; }
+}
+
 @layer utilities {
-  /* Transition de page : fondu court 150–200 ms, aucun effet superflu */
-  .page-enter {
-    animation: page-fade 175ms ease-out;
-  }
-  @keyframes page-fade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  /* Entrée de page */
+  .page-enter { animation: page-fade 175ms ease-out; }
+  @keyframes page-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Validation automatique (count atteint, case cochée) */
+  .check-pop { animation: check-pop 200ms ease-out; }
+  @keyframes check-pop {
+    0% { transform: scale(0.85); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
-  /* Animation douce 200 ms de validation automatique (count atteint) */
-  .check-pop {
-    animation: check-pop 200ms ease-out;
+  /* Entrée en cascade des éléments de liste :
+     ajouter classe "anim-rise" sur chaque <li>, avec
+     style={{ animationDelay: `${index * 40}ms` }} */
+  .anim-rise { opacity: 0; animation: rise 220ms ease-out forwards; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes check-pop {
-    0% {
-      transform: scale(0.85);
-      opacity: 0.4;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
+
+  /* Bottom sheet : voile + panneau qui glisse (à utiliser dans Sheet) */
+  .sheet-backdrop { animation: fade-in 175ms ease-out; }
+  .sheet-panel { animation: sheet-up 240ms cubic-bezier(0.32, 0.72, 0.35, 1); }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Chargement : squelettes pulsants */
+  .skeleton { animation: shimmer 1.4s ease-in-out infinite; background: linear-gradient(90deg, #f2f2f2 25%, #e7e7e7 50%, #f2f2f2 75%); background-size: 200% 100%; }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  /* Streak : petit pop quand la série augmente */
+  .streak-pop { animation: streak-pop 300ms ease-out; }
+  @keyframes streak-pop {
+    0% { transform: scale(0.8); }
+    60% { transform: scale(1.08); }
+    100% { transform: scale(1); }
   }
 }

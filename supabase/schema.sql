@@ -155,6 +155,11 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Nécessaire pour la réparation auto côté client (ensureProfile)
+drop policy if exists "création propre profil" on profiles;
+create policy "création propre profil" on profiles
+  for insert with check (id = auth.uid());
+  
 -- --------------------------------------------------------------------------
 -- 4. Row Level Security (Document 3, section 3)
 -- --------------------------------------------------------------------------

@@ -11,11 +11,16 @@ export function completionMap(completions: Completion[]): CompletionMap {
   return map;
 }
 
-/** Activités prévues un jour donné (créées au plus tard ce jour, non archivées). */
+/** Activités prévues un jour donné. Le PASSÉ inclut les activités archivées
+ * (un archivage ne doit jamais transformer des jours ratés en jours neutres,
+ * ce qui gonflait artificiellement les streaks) ; seul l'AVENIR les exclut. */
 export function scheduledOn(activities: Activity[], key: string): Activity[] {
-  return activities.filter(
-    (a) => !a.archived && dayKey(new Date(a.created_at)) <= key && isScheduledOn(a, key)
-  );
+  const today = todayKey();
+  return activities.filter((a) => {
+    if (dayKey(new Date(a.created_at)) > key) return false;
+    if (!isScheduledOn(a, key)) return false;
+    return key <= today || !a.archived;
+  });
 }
 
 /** Toutes les activités prévues ce jour sont-elles faites ? */

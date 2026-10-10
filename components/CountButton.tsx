@@ -1,12 +1,12 @@
 'use client';
 
-// SYSTEM — Contrôle Count (Doc 1 §2.1) : compteur de répétitions.
-// Validation automatique dès que l'objectif est atteint (animation 200 ms).
+// SYSTEM — Contrôle Count : compteur +/−, validation auto à l'objectif.
+// v2 : un clic en trop peut être corrigé (chip verte cliquable → −1).
 
 import { useState } from 'react';
-import { incrementCount } from '@/lib/actions';
+import { decrementCount, incrementCount } from '@/lib/actions';
 import type { Activity, Completion } from '@/lib/types';
-import { IconCheck, IconPlus } from './Icons';
+import { IconCheck, IconMinus, IconPlus } from './Icons';
 
 export default function CountButton({
   activity,
@@ -22,11 +22,11 @@ export default function CountButton({
   const value = completion?.value ?? 0;
   const done = completion?.done === true;
 
-  async function handleIncrement() {
-    if (busy || done) return;
+  async function run(fn: () => Promise<unknown>) {
+    if (busy) return;
     setBusy(true);
     try {
-      await incrementCount(activity, completion);
+      await fn();
       onChange();
     } finally {
       setBusy(false);
@@ -34,30 +34,42 @@ export default function CountButton({
   }
 
   if (done) {
-    // Objectif atteint : la carte se coche automatiquement
+    // Objectif atteint : cliquer dé-fait d'une unité (correction possible)
     return (
-      <div
-        className="check-pop flex h-11 min-h-[44px] items-center gap-1.5 rounded-lg bg-go px-3 text-sm font-semibold text-paper"
-        aria-label={`Objectif atteint : ${target} répétitions`}
+      <button
+        onClick={() => run(() => decrementCount(activity, completion))}
+        disabled={busy}
+        className="check-pop flex h-11 min-h-[44px] items-center gap-1.5 rounded-lg bg-go px-3 text-sm font-semibold text-paper transition-transform duration-page active:scale-95 disabled:opacity-40"
+        aria-label={`Objectif atteint : ${target}. Appuyer pour retirer une répétition`}
       >
         <IconCheck width={16} height={16} />
         {target}
-      </div>
+      </button>
     );
   }
 
   return (
-    <button
-      onClick={handleIncrement}
-      disabled={busy}
-      aria-label={`+1 répétition pour ${activity.title} (${value}/${target})`}
-      className="flex h-11 min-h-[44px] items-center gap-1.5 rounded-lg border border-ink px-3
-        text-sm font-semibold tabular-nums text-ink transition-colors duration-page
-        hover:bg-card active:bg-card disabled:opacity-40"
-    >
-      <IconPlus width={14} height={14} />
-      {value}
-      <span className="font-normal text-fog">/{target}</span>
-    </button>
+    <div className="flex items-center gap-1.5">
+      {value > 0 && (
+        <button
+          onClick={() => run(() => decrementCount(activity, completion))}
+          disabled={busy}
+          aria-label={`Retirer une répétition (${value}/${target})`}
+          className="flex h-11 min-h-[44px] w-9 items-center justify-center rounded-lg border border-line text-mist transition-colors duration-page hover:bg-card disabled:opacity-40"
+        >
+          <IconMinus width={14} height={14} />
+        </button>
+      )}
+      <button
+        onClick={() => run(() => incrementCount(activity, completion))}
+        disabled={busy}
+        aria-label={`+1 répétition pour ${activity.title} (${value}/${target})`}
+        className="flex h-11 min-h-[44px] items-center gap-1.5 rounded-lg border border-ink px-3 text-sm font-semibold tabular-nums text-ink transition-colors duration-page hover:bg-card active:scale-95 disabled:opacity-40"
+      >
+        <IconPlus width={14} height={14} />
+        {value}
+        <span className="font-normal text-fog">/{target}</span>
+      </button>
+    </div>
   );
 }
